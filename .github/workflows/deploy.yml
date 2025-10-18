@@ -26,13 +26,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          # Remove the cache line to disable caching
 
       - name: Install dependencies
-        run: npm install  # Changed from npm ci to npm install
+        run: npm install
 
-      - name: Build with Eleventy
-        run: npm run build
+      - name: Build CSS first
+        run: npm run build:css
+
+      - name: Build Eleventy
+        run: npm run build:eleventy
+
+      - name: List _site contents (debug)
+        run: ls -la _site/assets/css/ || echo "CSS directory not found"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
