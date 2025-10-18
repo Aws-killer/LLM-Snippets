@@ -4,8 +4,25 @@
     "category": "tailwind",
     "title": "Comparative Analysis Card",
     "description": "A dark, glassmorphic card with glow and grainy texture effects.",
-    "tags": ["tailwind", "card", "dark-mode", "ui"],
+    "tags": [
+      "tailwind",
+      "card",
+      "dark-mode",
+      "ui"
+    ],
     "previewImage": "https://i.postimg.cc/qqChhM8j/Screenshot-2025-10-18-125310.png",
+    "codeFile": "snippet.html"
+  },
+  {
+    "slug": "components",
+    "category": "react",
+    "title": "Nice react component",
+    "description": "a nice component",
+    "tags": [
+      "tailwind",
+      "email"
+    ],
+    "previewImage": "https://i.postimg.cc/mryYpGnJ/Screenshot-2025-10-18-152816.png",
     "codeFile": "snippet.html"
   }
 ]
