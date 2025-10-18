@@ -6,18 +6,11 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("./src/assets/js/");
   eleventyConfig.addPassthroughCopy({ "src/snippets": "snippets" });
 
-  // Read snippet data from our manifest file
-  eleventyConfig.addGlobalData("snippets", () => {
-    const data = fs.readFileSync("./src/storage/snippets.json", "utf8");
-    return JSON.parse(data);
-  });
-
-  // Create a collection from the global data, adding dynamic URLs
+  // Create a collection from snippets.json
   eleventyConfig.addCollection("snippets", function (collectionApi) {
-    const snippets = collectionApi.getFilteredByTag("snippets")[0];
-    return snippets.map(snippet => {
+    const snippetsData = JSON.parse(fs.readFileSync("./src/storage/snippets.json", "utf8"));
+    return snippetsData.map(snippet => {
       snippet.url = `/snippets/${snippet.category}/${snippet.slug}/`;
-      // Check if preview is a full URL, otherwise construct the path
       if (snippet.previewImage && !snippet.previewImage.startsWith('http')) {
         snippet.preview = `/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
       } else {
