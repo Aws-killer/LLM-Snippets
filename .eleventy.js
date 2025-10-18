@@ -5,6 +5,8 @@ module.exports = function (eleventyConfig) {
   // Pass through static assets
   eleventyConfig.addPassthroughCopy("./src/assets/js/");
   eleventyConfig.addPassthroughCopy({ "src/snippets": "snippets" });
+  
+  // IMPORTANT: Don't copy CSS here - it's already built to _site by Tailwind
 
   // Create a collection from snippets.json
   eleventyConfig.addCollection("snippets", function (collectionApi) {
@@ -35,6 +37,12 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("uniqueCategories", function(snippets) {
       const categories = snippets.map(s => s.category);
       return [...new Set(categories)];
+  });
+
+  // Add custom capitalize filter
+  eleventyConfig.addFilter("capitalize", function(str) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
   });
 
   return {
