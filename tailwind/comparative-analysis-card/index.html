@@ -1,0 +1,78 @@
+<div class="flex min-h-screen items-center justify-center bg-[#09090B] p-8 font-sans antialiased">
+  <!-- SVG filter for the grainy texture -->
+  <svg class="absolute h-0 w-0">
+    <filter id="grainy">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" result="noise" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.15 0" />
+      </feComponentTransfer>
+    </filter>
+  </svg>
+
+  <!-- Style block for custom shadow and grain -->
+  <style>
+    .card-grainy {
+      filter: url(#grainy);
+    }
+  </style>
+
+  <!-- Main Card -->
+  <div class="shadow-glow card-grainy relative isolate w-full max-w-6xl rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1D29] via-[#151821] to-[#0F1117] p-10">
+    <div class="pointer-events-none absolute top-0 left-0 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl"></div>
+
+    <!-- Header -->
+    <div class="relative mb-12">
+      <h3 class="text-sm font-semibold tracking-wider text-cyan-400/90 uppercase">Comparative Analysis</h3>
+      <p class="mt-5 text-4xl leading-tight font-bold">
+        <span class="bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent">Reward System Trade-Offs:</span>
+        <span class="text-gray-600"> Precision vs. Nuance</span>
+      </p>
+    </div>
+
+    <!-- Table -->
+    <div class="relative rounded-2xl bg-black/30 p-8 shadow-inner ring-1 ring-white/10 backdrop-blur-sm">
+      <div class="text-base text-gray-400">
+        <div class="grid grid-cols-[1.5fr_2fr_2fr] gap-10 border-b border-white/10 pb-5">
+          <div class="text-sm font-semibold tracking-wide text-gray-300 uppercase">Attribute</div>
+          <div class="text-sm font-semibold tracking-wide text-gray-300 uppercase">Dense Reward Model</div>
+          <div class="text-sm font-semibold tracking-wide text-gray-300 uppercase">Rule-Based Verifier</div>
+        </div>
+
+        <div class="divide-y divide-white/5">
+          <!-- Row 1 -->
+          <div class="grid grid-cols-[1.5fr_2fr_2fr] gap-10 py-7">
+            <div class="font-semibold text-gray-300">Core Idea</div>
+            <div class="leading-relaxed text-gray-400">Provides a nuanced, continuous score that reflects degrees of correctness.</div>
+            <div class="leading-relaxed text-gray-400">Provides an absolute, binary judgment: the answer is either 100% correct or 0% correct.</div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="grid grid-cols-[1.5fr_2fr_2fr] gap-10 py-7">
+            <div class="font-semibold text-gray-300">Strengths</div>
+            <div>
+              <span class="inline-flex items-center rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-bold tracking-wider text-emerald-400 uppercase shadow-sm ring-1 ring-emerald-500/30 ring-inset">Strength</span>
+              <p class="mt-4 leading-relaxed text-gray-400">Offers a rich learning signal that rewards partial progress, guiding the model effectively.</p>
+            </div>
+            <div>
+              <span class="inline-flex items-center rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-bold tracking-wider text-emerald-400 uppercase shadow-sm ring-1 ring-emerald-500/30 ring-inset">Strength</span>
+              <p class="mt-4 leading-relaxed text-gray-400">Extremely precise and reliable. Its "correct" signal is an unquestionable ground truth.</p>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="grid grid-cols-[1.5fr_2fr_2fr] gap-10 py-7">
+            <div class="font-semibold text-gray-300">Weaknesses</div>
+            <div>
+              <span class="inline-flex items-center rounded-lg bg-rose-500/10 px-3 py-1.5 text-xs font-bold tracking-wider text-rose-400 uppercase shadow-sm ring-1 ring-rose-500/30 ring-inset">Weakness</span>
+              <p class="mt-4 leading-relaxed text-gray-400">Prone to noise and can be "hacked" by models that generate plausible but incorrect outputs.</p>
+            </div>
+            <div>
+              <span class="inline-flex items-center rounded-lg bg-rose-500/10 px-3 py-1.5 text-xs font-bold tracking-wider text-rose-400 uppercase shadow-sm ring-1 ring-rose-500/30 ring-inset">Weakness</span>
+              <p class="mt-4 leading-relaxed text-gray-400">Incurably brittle. It cannot award partial credit, resulting in a sparse and often unhelpful signal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
