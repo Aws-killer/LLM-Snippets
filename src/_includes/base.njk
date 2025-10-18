@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "Snippet Collection" }}</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js" defer></script>
+</head>
+<body class="bg-[#09090B] font-sans text-gray-300 antialiased">
+    <!-- SVG filter for the grainy texture -->
+    <svg class="absolute h-0 w-0">
+        <filter id="grainy">
+            <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" result="noise" />
+            <feComponentTransfer>
+                <feFuncA type="table" tableValues="0 0.15 0" />
+            </feComponentTransfer>
+        </filter>
+    </svg>
+
+    <main class="min-h-screen p-4 sm:p-8">
+        {{ content | safe }}
+    </main>
+</body>
+</html>
