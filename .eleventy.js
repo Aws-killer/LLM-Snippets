@@ -6,18 +6,23 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("./src/assets/js/");
   eleventyConfig.addPassthroughCopy({ "src/snippets": "snippets" });
 
+  // Add global data for base path
+  eleventyConfig.addGlobalData("basePath", "/LLM-Snippets");
+
   // Create a collection from snippets.json
   eleventyConfig.addCollection("snippets", function (collectionApi) {
     try {
       const snippetsData = JSON.parse(fs.readFileSync("./src/storage/snippets.json", "utf8"));
       console.log(`Loaded ${snippetsData.length} snippets from snippets.json`);
       
+      const basePath = "/LLM-Snippets";
+      
       return snippetsData.map(snippet => {
-        snippet.url = `/LLM-Snippets/snippets/${snippet.category}/${snippet.slug}/`;
+        snippet.url = `${basePath}/snippets/${snippet.category}/${snippet.slug}/`;
         
         // Handle preview image path
         if (snippet.previewImage && !snippet.previewImage.startsWith('http')) {
-          snippet.preview = `/LLM-Snippets/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
+          snippet.preview = `${basePath}/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
         } else {
           snippet.preview = snippet.previewImage;
         }
