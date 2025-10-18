@@ -1,0 +1,434 @@
+---
+layout: "base.njk"
+title: "Admin Panel"
+permalink: "/admin/"
+---
+
+<!-- Processing Overlay -->
+<div id="processing-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-gradient-to-br from-[#1A1D29] to-[#0F1117] rounded-3xl border border-white/10 p-8 max-w-md w-full mx-4">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-cyan-400 border-t-transparent mb-4"></div>
+            <h3 class="text-xl font-bold text-white mb-2">Processing...</h3>
+            <p id="processing-status" class="text-gray-400 text-center text-sm"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Success Message -->
+<div id="success-message" class="hidden fixed top-8 right-8 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 max-w-md animate-slide-in">
+    <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div>
+            <h4 class="font-bold">Success!</h4>
+            <p id="success-text" class="text-sm opacity-90"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Error Message -->
+<div id="error-message" class="hidden fixed top-8 right-8 bg-gradient-to-r from-rose-500 to-red-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 max-w-md animate-slide-in">
+    <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <div>
+            <h4 class="font-bold">Error!</h4>
+            <p id="error-text" class="text-sm opacity-90"></p>
+        </div>
+    </div>
+</div>
+
+<div class="mx-auto max-w-4xl">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-white mb-2">Admin Panel</h1>
+            <p class="text-gray-400">Manage your snippet collection</p>
+        </div>
+        <a href="/" class="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-white/20 transition">
+            ← Back to Collection
+        </a>
+    </div>
+
+    <!-- GitHub Config Section -->
+    <div id="config-section" class="mb-8 rounded-2xl border border-white/10 bg-gradient-to-br from-[#1A1D29] to-[#0F1117] p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">🔐 GitHub Configuration</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Personal Access Token</label>
+                <input 
+                    type="password" 
+                    id="github-token" 
+                    placeholder="ghp_xxxxxxxxxxxx"
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                >
+                <p class="mt-2 text-xs text-gray-500">
+                    <a href="https://github.com/settings/tokens/new?scopes=repo&description=Snippet%20Admin" target="_blank" class="text-cyan-400 hover:text-cyan-300">Create a token</a> with "repo" scope
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Owner</label>
+                    <input 
+                        type="text" 
+                        id="repo-owner" 
+                        placeholder="aws-killer"
+                        class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Repository</label>
+                    <input 
+                        type="text" 
+                        id="repo-name" 
+                        placeholder="LLM-Snippets"
+                        class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                    >
+                </div>
+            </div>
+            <button 
+                onclick="saveConfig()"
+                class="rounded-lg bg-cyan-500 px-6 py-2 text-sm font-semibold text-black hover:bg-cyan-400 transition"
+            >
+                Save & Unlock Admin
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Snippet Form -->
+    <div id="snippet-form" class="hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1A1D29] to-[#0F1117] p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">✨ Add New Snippet</h2>
+        
+        <form onsubmit="addSnippet(event)" class="space-y-6">
+            <!-- Basic Info -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Slug *</label>
+                    <input 
+                        type="text" 
+                        id="slug" 
+                        placeholder="my-awesome-card"
+                        required
+                        pattern="[a-z0-9-]+"
+                        class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">lowercase-with-hyphens</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Category *</label>
+                    <input 
+                        type="text" 
+                        id="category"
+                        list="categories"
+                        placeholder="tailwind"
+                        required
+                        class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                    >
+                    <datalist id="categories">
+                        {%- for cat in collections.snippets | uniqueCategories -%}
+                        <option value="{{ cat }}">
+                        {%- endfor -%}
+                        <option value="react">
+                        <option value="python">
+                        <option value="javascript">
+                        <option value="prompts">
+                    </datalist>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Title *</label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    placeholder="My Awesome Card Component"
+                    required
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Description *</label>
+                <textarea 
+                    id="description" 
+                    placeholder="A beautiful card component with animations..."
+                    rows="3"
+                    required
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                ></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Tags (comma-separated) *</label>
+                <input 
+                    type="text" 
+                    id="tags" 
+                    placeholder="tailwind, card, dark-mode, ui"
+                    required
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Preview Image URL *</label>
+                <input 
+                    type="url" 
+                    id="preview-image" 
+                    placeholder="https://i.postimg.cc/..."
+                    required
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                >
+                <p class="mt-1 text-xs text-gray-500">Upload to <a href="https://postimages.org/" target="_blank" class="text-cyan-400 hover:text-cyan-300">PostImages</a> or <a href="https://imgur.com/" target="_blank" class="text-cyan-400 hover:text-cyan-300">Imgur</a></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Code File Name *</label>
+                <input 
+                    type="text" 
+                    id="code-filename" 
+                    placeholder="snippet.html"
+                    required
+                    value="snippet.html"
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Code Content *</label>
+                <textarea 
+                    id="code-content" 
+                    placeholder="<div>Your code here...</div>"
+                    rows="15"
+                    required
+                    class="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-gray-500 font-mono text-sm focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                ></textarea>
+            </div>
+
+            <div class="flex gap-4">
+                <button 
+                    type="submit"
+                    class="flex-1 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-3 text-lg font-bold text-white hover:from-cyan-400 hover:to-blue-400 transition shadow-lg"
+                >
+                    🚀 Add Snippet & Deploy
+                </button>
+                <button 
+                    type="button"
+                    onclick="resetForm()"
+                    class="rounded-lg bg-white/10 px-6 py-3 font-semibold text-gray-300 hover:bg-white/20 transition"
+                >
+                    Clear
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+}
+</style>
+
+<script>
+// Configuration Management
+function saveConfig() {
+    const token = document.getElementById('github-token').value;
+    const owner = document.getElementById('repo-owner').value;
+    const repo = document.getElementById('repo-name').value;
+
+    if (!token || !owner || !repo) {
+        showError('Please fill in all configuration fields');
+        return;
+    }
+
+    // Store in memory (not localStorage as per requirements)
+    window.githubConfig = { token, owner, repo };
+    
+    // Show form
+    document.getElementById('config-section').classList.add('hidden');
+    document.getElementById('snippet-form').classList.remove('hidden');
+    showSuccess('Configuration saved! You can now add snippets.');
+}
+
+// Show/Hide Messages
+function showProcessing(message) {
+    document.getElementById('processing-status').textContent = message;
+    document.getElementById('processing-overlay').classList.remove('hidden');
+}
+
+function hideProcessing() {
+    document.getElementById('processing-overlay').classList.add('hidden');
+}
+
+function showSuccess(message) {
+    document.getElementById('success-text').textContent = message;
+    const el = document.getElementById('success-message');
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 5000);
+}
+
+function showError(message) {
+    document.getElementById('error-text').textContent = message;
+    const el = document.getElementById('error-message');
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 8000);
+}
+
+// GitHub API Functions
+async function githubRequest(url, method, body) {
+    const config = window.githubConfig;
+    const response = await fetch(url, {
+        method,
+        headers: {
+            'Authorization': `token ${config.token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+        },
+        body: body ? JSON.stringify(body) : undefined
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'GitHub API error');
+    }
+
+    return response.json();
+}
+
+async function getFileSHA(path) {
+    const config = window.githubConfig;
+    try {
+        const data = await githubRequest(
+            `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`,
+            'GET'
+        );
+        return data.sha;
+    } catch (e) {
+        return null; // File doesn't exist
+    }
+}
+
+async function createOrUpdateFile(path, content, message) {
+    const config = window.githubConfig;
+    const sha = await getFileSHA(path);
+    
+    const body = {
+        message,
+        content: btoa(unescape(encodeURIComponent(content))), // Base64 encode
+        branch: 'main'
+    };
+    
+    if (sha) {
+        body.sha = sha;
+    }
+
+    return githubRequest(
+        `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`,
+        'PUT',
+        body
+    );
+}
+
+// Main Add Snippet Function
+async function addSnippet(event) {
+    event.preventDefault();
+    
+    if (!window.githubConfig) {
+        showError('Please configure GitHub settings first');
+        return;
+    }
+
+    try {
+        // Get form values
+        const slug = document.getElementById('slug').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const tags = document.getElementById('tags').value.split(',').map(t => t.trim());
+        const previewImage = document.getElementById('preview-image').value.trim();
+        const codeFilename = document.getElementById('code-filename').value.trim();
+        const codeContent = document.getElementById('code-content').value;
+
+        // Step 1: Create code file
+        showProcessing('Creating code file...');
+        const codePath = `src/snippets/${category}/${slug}/${codeFilename}`;
+        await createOrUpdateFile(codePath, codeContent, `Add ${slug} snippet code`);
+
+        // Step 2: Update snippets.json
+        showProcessing('Updating snippets.json...');
+        const manifestPath = 'src/storage/snippets.json';
+        const manifestSHA = await getFileSHA(manifestPath);
+        
+        // Fetch current snippets.json
+        const config = window.githubConfig;
+        const currentManifest = await githubRequest(
+            `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${manifestPath}`,
+            'GET'
+        );
+        
+        const currentSnippets = JSON.parse(atob(currentManifest.content));
+        
+        // Add new snippet
+        currentSnippets.push({
+            slug,
+            category,
+            title,
+            description,
+            tags,
+            previewImage,
+            codeFile: codeFilename
+        });
+
+        // Update snippets.json
+        await createOrUpdateFile(
+            manifestPath, 
+            JSON.stringify(currentSnippets, null, 2),
+            `Add ${title} to snippets`
+        );
+
+        // Step 3: Wait for GitHub Actions
+        showProcessing('GitHub Actions is building your site... This may take 1-2 minutes.');
+        
+        // Success!
+        hideProcessing();
+        showSuccess(`Snippet "${title}" added successfully! Check your site in 1-2 minutes.`);
+        resetForm();
+
+    } catch (error) {
+        hideProcessing();
+        showError(`Failed to add snippet: ${error.message}`);
+        console.error(error);
+    }
+}
+
+function resetForm() {
+    document.getElementById('slug').value = '';
+    document.getElementById('title').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('tags').value = '';
+    document.getElementById('preview-image').value = '';
+    document.getElementById('code-content').value = '';
+    document.getElementById('code-filename').value = 'snippet.html';
+}
+
+// Load saved config on page load (from session only)
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.githubConfig) {
+        document.getElementById('config-section').classList.add('hidden');
+        document.getElementById('snippet-form').classList.remove('hidden');
+    }
+});
+</script>
