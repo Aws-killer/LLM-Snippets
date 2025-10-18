@@ -1,0 +1,849 @@
+import React, { useState } from 'react';
+import { Inbox, File, Send, ArchiveX, Trash2, User, Command, PanelLeft, Search, Star, Reply, Forward, MoreVertical, Paperclip, X } from 'lucide-react';
+
+const ClodMessagingInbox = () => {
+  const [activeNav, setActiveNav] = useState('Inbox');
+  const [selectedMail, setSelectedMail] = useState(0);
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [middleWidth, setMiddleWidth] = useState(320);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const navItems = [
+    { icon: Inbox, title: 'Inbox', count: 12 },
+    { icon: File, title: 'Drafts', count: 3 },
+    { icon: Send, title: 'Sent', count: 0 },
+    { icon: ArchiveX, title: 'Junk', count: 5 },
+    { icon: Trash2, title: 'Trash', count: 2 }
+  ];
+
+  const mails = [
+    {
+      name: 'Sarah Johnson',
+      email: 'sarah.j@example.com',
+      subject: 'Design Review Meeting',
+      date: '10:30 AM',
+      teaser: "Hey! Can we reschedule tomorrow's design review? I have a conflict with another meeting. How about Thursday at 2 PM instead?",
+      unread: true,
+      starred: true
+    },
+    {
+      name: 'Mike Chen',
+      email: 'mike.chen@example.com',
+      subject: 'Project Deadline Update',
+      date: 'Yesterday',
+      teaser: "Just wanted to give you a heads up that we're pushing the launch date by one week. The dev team needs more time for testing.",
+      unread: true,
+      starred: false
+    },
+    {
+      name: 'Emma Williams',
+      email: 'emma.w@example.com',
+      subject: 'Weekend Hiking Trip',
+      date: 'Yesterday',
+      teaser: "Who's up for a hiking adventure this Saturday? I found an amazing trail with incredible views. Bring good shoes and snacks!",
+      unread: false,
+      starred: true
+    },
+    {
+      name: 'David Park',
+      email: 'david.park@example.com',
+      subject: 'Budget Approval Request',
+      date: '2 days ago',
+      teaser: "I've attached the Q3 budget proposal for your review. Please let me know if you have any questions or need clarifications on any items.",
+      unread: false,
+      starred: false
+    },
+    {
+      name: 'Lisa Anderson',
+      email: 'lisa.a@example.com',
+      subject: 'Team Lunch Tomorrow',
+      date: '3 days ago',
+      teaser: "Reminder: Team lunch at the new Italian place downtown tomorrow at 12:30. RSVP if you haven't already!",
+      unread: false,
+      starred: false
+    }
+  ];
+
+  const handleMouseMove = (e) => {
+    if (!isResizing) return;
+    const newWidth = e.clientX - (leftCollapsed ? 80 : 200);
+    if (newWidth >= 280 && newWidth <= 500) {
+      setMiddleWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+  };
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizing, leftCollapsed]);
+
+  return (
+    <div style={{ 
+      fontFamily: "'Open Sans', sans-serif",
+      backgroundColor: '#f0ebe5',
+      minHeight: '100vh',
+      color: '#2a2a2a'
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid #ddd4cc',
+        padding: '1rem 1.5rem',
+        boxShadow: '0 1px 3px 0 rgba(42, 42, 42, 0.1), 0 1px 2px -1px rgba(42, 42, 42, 0.1)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Command size={24} strokeWidth={1.5} style={{ color: '#c17a5c' }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '20px', fontWeight: '600', lineHeight: 1.4 }}>MailBox</div>
+            <div style={{ fontSize: '12px', color: '#6b6b6b', fontWeight: '400' }}>Enterprise</div>
+          </div>
+          <button style={{
+            backgroundColor: '#2a2a2a',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '1rem',
+            padding: '12px 24px',
+            fontSize: '16px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+          >
+            Compose
+          </button>
+        </div>
+      </div>
+
+      <div style={{ 
+        maxWidth: isMobile ? 'none' : 'none',
+        margin: '0 auto', 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        height: 'calc(100vh - 80px)', 
+        userSelect: isResizing ? 'none' : 'auto' 
+      }}>
+        {/* Left Sidebar - Nav */}
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRight: isMobile ? 'none' : '1px solid #ddd4cc',
+          borderBottom: isMobile ? '1px solid #ddd4cc' : 'none',
+          padding: isMobile ? '1rem' : '1.5rem 1rem',
+          width: isMobile ? '100%' : (leftCollapsed ? '80px' : '200px'),
+          height: isMobile ? 'auto' : 'auto',
+          transition: 'width 0.3s ease',
+          flexShrink: 0,
+          position: 'relative',
+          display: 'flex',
+          flexDirection: isMobile ? 'row' : 'column',
+          gap: isMobile ? '0.5rem' : '0',
+          overflowX: isMobile ? 'auto' : 'visible',
+          overflowY: isMobile ? 'hidden' : 'visible'
+        }}>
+          {!isMobile && (
+            <button
+              onClick={() => setLeftCollapsed(!leftCollapsed)}
+              style={{
+                width: '100%',
+                marginBottom: '1rem',
+                padding: '12px',
+                backgroundColor: 'transparent',
+                border: '1px solid #ddd4cc',
+                borderRadius: '0.75rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease-in-out',
+                color: '#2a2a2a'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0ebe5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <PanelLeft size={18} strokeWidth={1.5} style={{ 
+                transform: leftCollapsed ? 'scaleX(-1)' : 'none',
+                transition: 'transform 0.3s ease'
+              }} />
+            </button>
+          )}
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'row' : 'column', 
+            gap: '0.5rem',
+            flex: isMobile ? 1 : 'none'
+          }}>
+            {navItems.map((item) => (
+              <button
+                key={item.title}
+                onClick={() => setActiveNav(item.title)}
+                title={isMobile || leftCollapsed ? item.title : ''}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: (isMobile || leftCollapsed) ? '12px' : '12px 16px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  border: 'none',
+                  borderRadius: '0.75rem',
+                  backgroundColor: activeNav === item.title ? '#f0ebe5' : 'transparent',
+                  color: '#2a2a2a',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  textAlign: 'left',
+                  width: isMobile ? 'auto' : '100%',
+                  minWidth: isMobile ? '48px' : 'auto',
+                  justifyContent: (isMobile || leftCollapsed) ? 'center' : 'flex-start',
+                  position: 'relative',
+                  overflow: 'visible',
+                  flexShrink: isMobile ? 0 : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeNav !== item.title) {
+                    e.currentTarget.style.backgroundColor = '#f0ebe5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeNav !== item.title) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <item.icon size={18} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+                {!isMobile && !leftCollapsed && <span style={{ flex: 1 }}>{item.title}</span>}
+                {item.count > 0 && (
+                  <span style={{
+                    backgroundColor: '#c17a5c',
+                    color: '#ffffff',
+                    padding: '2px 8px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '2rem',
+                    position: (isMobile || leftCollapsed) ? 'absolute' : 'static',
+                    top: (isMobile || leftCollapsed) ? '-4px' : 'auto',
+                    right: (isMobile || leftCollapsed) ? '-4px' : 'auto',
+                    minWidth: (isMobile || leftCollapsed) ? '20px' : 'auto',
+                    textAlign: 'center'
+                  }}>
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ 
+            marginTop: isMobile ? '0' : '2rem', 
+            paddingTop: isMobile ? '0' : '2rem', 
+            marginLeft: isMobile ? 'auto' : '0',
+            paddingLeft: isMobile ? '1rem' : '0',
+            borderTop: isMobile ? 'none' : '1px solid #ddd4cc',
+            borderLeft: isMobile ? '1px solid #ddd4cc' : 'none'
+          }}>
+            <button style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: (isMobile || leftCollapsed) ? '12px' : '12px 16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              border: 'none',
+              borderRadius: '0.75rem',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              width: isMobile ? 'auto' : '100%',
+              minWidth: isMobile ? '48px' : 'auto',
+              textAlign: 'left',
+              justifyContent: (isMobile || leftCollapsed) ? 'center' : 'flex-start',
+              transition: 'all 0.2s ease-in-out',
+              color: '#2a2a2a'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0ebe5'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <User size={18} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+              {!isMobile && !leftCollapsed && (
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '600' }}>Alex Morgan</div>
+                  <div style={{ fontSize: '12px', color: '#6b6b6b' }}>alex@example.com</div>
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Middle Sidebar - Mail List */}
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRight: isMobile ? 'none' : '1px solid #ddd4cc',
+          borderBottom: isMobile ? '1px solid #ddd4cc' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          width: isMobile ? '100%' : `${middleWidth}px`,
+          height: isMobile ? 'auto' : 'auto',
+          flex: isMobile ? 1 : 'none',
+          flexShrink: 0,
+          position: 'relative'
+        }}>
+          {/* Resize Handle - Desktop Only */}
+          {!isMobile && (
+            <div
+              onMouseDown={() => setIsResizing(true)}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: '8px',
+                cursor: 'col-resize',
+                zIndex: 10,
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(193, 122, 92, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            />
+          )}
+
+          <div style={{
+            padding: '1.5rem',
+            borderBottom: '1px solid #ddd4cc'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0, lineHeight: 1.4 }}>{activeNav}</h2>
+              <span style={{
+                fontSize: '12px',
+                padding: '4px 12px',
+                backgroundColor: '#f0ebe5',
+                borderRadius: '2rem',
+                fontWeight: '600',
+                color: '#2a2a2a'
+              }}>
+                {mails.filter(m => m.unread).length} new
+              </span>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6b6b6b' }} size={16} strokeWidth={1.5} />
+              <input
+                type="text"
+                placeholder="Search messages..."
+                style={{
+                  width: '100%',
+                  padding: '10px 10px 10px 40px',
+                  border: '1px solid #ddd4cc',
+                  borderRadius: '0.75rem',
+                  fontSize: '14px',
+                  fontFamily: "'Open Sans', sans-serif",
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  transition: 'all 0.2s ease-in-out',
+                  color: '#2a2a2a'
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#c17a5c'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#ddd4cc'}
+              />
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflow: 'auto' }}>
+            {mails.map((mail, idx) => (
+              <div
+                key={idx}
+                onClick={() => {
+                  setSelectedMail(idx);
+                  if (isMobile) {
+                    setShowMobileDetail(true);
+                  }
+                }}
+                style={{
+                  padding: '1.25rem 1.5rem',
+                  borderBottom: '1px solid #e6ddd5',
+                  backgroundColor: selectedMail === idx ? '#f0ebe5' : (mail.unread ? '#ffffff' : 'transparent'),
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedMail !== idx) {
+                    e.currentTarget.style.backgroundColor = '#f0ebe5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedMail !== idx) {
+                    e.currentTarget.style.backgroundColor = mail.unread ? '#ffffff' : 'transparent';
+                  }
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <div style={{ fontSize: '14px', fontWeight: mail.unread ? '600' : '500' }}>{mail.name}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    {mail.starred && <Star size={12} fill="#c17a5c" color="#c17a5c" strokeWidth={1.5} />}
+                    <span style={{ fontSize: '12px', color: '#6b6b6b', whiteSpace: 'nowrap' }}>{mail.date}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '0.375rem', color: '#2a2a2a' }}>{mail.subject}</div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#6b6b6b',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  lineHeight: 1.45
+                }}>
+                  {mail.teaser}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content Area - Selected Mail */}
+        {!isMobile && (
+          <div style={{ 
+            backgroundColor: '#f0ebe5', 
+            padding: '2rem', 
+            overflow: 'auto', 
+            flex: 1 
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '1.5rem',
+              boxShadow: '0 4px 6px -1px rgba(42, 42, 42, 0.1), 0 2px 4px -2px rgba(42, 42, 42, 0.1)',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
+            }}>
+              {/* Mail Header */}
+              <div style={{
+                padding: '2rem',
+                borderBottom: '1px solid #e6ddd5',
+                backgroundColor: '#ffffff'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <h1 style={{ fontSize: '24px', fontWeight: '600', margin: '0 0 1rem 0', lineHeight: 1.35, letterSpacing: '-0.005em' }}>
+                      {mails[selectedMail].subject}
+                    </h1>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        backgroundColor: '#c17a5c',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '600',
+                        fontSize: '18px',
+                        color: '#ffffff'
+                      }}>
+                        {mails[selectedMail].name.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '600', fontSize: '16px' }}>{mails[selectedMail].name}</div>
+                        <div style={{ fontSize: '14px', color: '#6b6b6b' }}>{mails[selectedMail].email}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button style={{
+                      backgroundColor: 'transparent',
+                      border: '1px solid #ddd4cc',
+                      borderRadius: '0.75rem',
+                      padding: '10px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease-in-out',
+                      color: '#2a2a2a'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0ebe5'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <Star size={18} strokeWidth={1.5} />
+                    </button>
+                    <button style={{
+                      backgroundColor: 'transparent',
+                      border: '1px solid #ddd4cc',
+                      borderRadius: '0.75rem',
+                      padding: '10px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease-in-out',
+                      color: '#2a2a2a'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0ebe5'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <MoreVertical size={18} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+                <div style={{ fontSize: '14px', color: '#6b6b6b' }}>
+                  Received {mails[selectedMail].date}
+                </div>
+              </div>
+
+              {/* Mail Body */}
+              <div style={{ flex: 1, padding: '2rem', fontSize: '16px', lineHeight: 1.5, overflow: 'auto' }}>
+                <p style={{ margin: '0 0 1rem 0' }}>
+                  {mails[selectedMail].teaser}
+                </p>
+                <p style={{ margin: '0 0 1rem 0' }}>
+                  Looking forward to hearing from you soon. Let me know what works best for your schedule.
+                </p>
+                <p style={{ margin: '0' }}>
+                  Best regards,<br />
+                  {mails[selectedMail].name.split(' ')[0]}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{
+                padding: '1.5rem 2rem',
+                borderTop: '1px solid #e6ddd5',
+                backgroundColor: '#ffffff',
+                display: 'flex',
+                gap: '0.75rem'
+              }}>
+                <button style={{
+                  backgroundColor: '#2a2a2a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '1rem',
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  <Reply size={18} strokeWidth={1.5} />
+                  Reply
+                </button>
+                <button style={{
+                  backgroundColor: 'transparent',
+                  color: '#2a2a2a',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: '2rem',
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a2a2a';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#2a2a2a';
+                }}
+                >
+                  <Forward size={18} strokeWidth={1.5} />
+                  Forward
+                </button>
+                <button style={{
+                  backgroundColor: 'transparent',
+                  color: '#2a2a2a',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: '2rem',
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a2a2a';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#2a2a2a';
+                }}
+                >
+                  <Paperclip size={18} strokeWidth={1.5} />
+                  Attach
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Full-Screen Message Detail Popover */}
+        {isMobile && showMobileDetail && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#f0ebe5',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* Mobile Header with Back Button */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderBottom: '1px solid #ddd4cc',
+              padding: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              boxShadow: '0 1px 3px 0 rgba(42, 42, 42, 0.1), 0 1px 2px -1px rgba(42, 42, 42, 0.1)'
+            }}>
+              <button
+                onClick={() => setShowMobileDetail(false)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '1px solid #ddd4cc',
+                  borderRadius: '0.75rem',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#2a2a2a'
+                }}
+              >
+                <X size={20} strokeWidth={1.5} />
+              </button>
+              <div style={{ flex: 1, fontWeight: '600', fontSize: '16px' }}>Message</div>
+            </div>
+
+            {/* Message Content */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '1rem' }}>
+              <div style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '1.5rem',
+                boxShadow: '0 4px 6px -1px rgba(42, 42, 42, 0.1), 0 2px 4px -2px rgba(42, 42, 42, 0.1)',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+              }}>
+                {/* Mail Header */}
+                <div style={{
+                  padding: '1.5rem',
+                  borderBottom: '1px solid #e6ddd5'
+                }}>
+                  <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 1rem 0', lineHeight: 1.4 }}>
+                    {mails[selectedMail].subject}
+                  </h1>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      backgroundColor: '#c17a5c',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: '600',
+                      fontSize: '18px',
+                      color: '#ffffff'
+                    }}>
+                      {mails[selectedMail].name.charAt(0)}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', fontSize: '16px' }}>{mails[selectedMail].name}</div>
+                      <div style={{ fontSize: '14px', color: '#6b6b6b' }}>{mails[selectedMail].email}</div>
+                    </div>
+                    <button style={{
+                      backgroundColor: 'transparent',
+                      border: '1px solid #ddd4cc',
+                      borderRadius: '0.75rem',
+                      padding: '8px',
+                      cursor: 'pointer',
+                      color: '#2a2a2a'
+                    }}>
+                      <Star size={18} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b6b6b' }}>
+                    Received {mails[selectedMail].date}
+                  </div>
+                </div>
+
+                {/* Mail Body */}
+                <div style={{ flex: 1, padding: '1.5rem', fontSize: '16px', lineHeight: 1.5, overflow: 'auto' }}>
+                  <p style={{ margin: '0 0 1rem 0' }}>
+                    {mails[selectedMail].teaser}
+                  </p>
+                  <p style={{ margin: '0 0 1rem 0' }}>
+                    Looking forward to hearing from you soon. Let me know what works best for your schedule.
+                  </p>
+                  <p style={{ margin: '0' }}>
+                    Best regards,<br />
+                    {mails[selectedMail].name.split(' ')[0]}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{
+                  padding: '1.5rem',
+                  borderTop: '1px solid #e6ddd5',
+                  backgroundColor: '#ffffff',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}>
+                  <button style={{
+                    padding: '12px 24px',
+                    fontWeight: '500',
+                    border: 'none',
+                    backgroundColor: '#2a2a2a',
+                    color: '#ffffff',
+                    borderRadius: '1rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    fontSize: '16px',
+                    fontFamily: "'Open Sans', sans-serif",
+                    transition: 'all 0.2s ease-in-out'
+                  }}>
+                    <Reply size={18} strokeWidth={1.5} />
+                    Reply
+                  </button>
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      fontWeight: '500',
+                      border: '1px solid #2a2a2a',
+                      backgroundColor: 'transparent',
+                      color: '#2a2a2a',
+                      borderRadius: '2rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      fontSize: '16px',
+                      fontFamily: "'Open Sans', sans-serif",
+                      transition: 'all 0.2s ease-in-out'
+                    }}>
+                      <Forward size={18} strokeWidth={1.5} />
+                      Forward
+                    </button>
+                    <button style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      fontWeight: '500',
+                      border: '1px solid #2a2a2a',
+                      backgroundColor: 'transparent',
+                      color: '#2a2a2a',
+                      borderRadius: '2rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      fontSize: '16px',
+                      fontFamily: "'Open Sans', sans-serif",
+                      transition: 'all 0.2s ease-in-out'
+                    }}>
+                      <Paperclip size={18} strokeWidth={1.5} />
+                      Attach
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Attribution Badge */}
+      <a
+        href="https://popmelt.com?utm_source=mcp&utm_medium=artifact&utm_campaign=made_with&utm_source=Claude Chat"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: 'fixed',
+          bottom: '1rem',
+          right: '1rem',
+          backgroundColor: 'white',
+          border: '1px solid #ddd4cc',
+          borderRadius: '0.75rem',
+          padding: '0.5rem 0.75rem',
+          fontSize: '12px',
+          fontWeight: '500',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          boxShadow: '0 1px 3px 0 rgba(42, 42, 42, 0.1), 0 1px 2px -1px rgba(42, 42, 42, 0.1)',
+          textDecoration: 'none',
+          color: '#2a2a2a',
+          zIndex: 1000,
+          transition: 'all 0.2s ease-in-out'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(42, 42, 42, 0.1), 0 2px 4px -2px rgba(42, 42, 42, 0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(42, 42, 42, 0.1), 0 1px 2px -1px rgba(42, 42, 42, 0.1)';
+        }}
+      >
+        Made with
+        <svg width="15" height="16" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.6068 15.5C1.10915 15.5 0.800113 14.8672 0.596075 14.15C0.466251 13.6937 0.382714 13.4759 0.302057 13.0088C0.291879 12.9499 0.277255 12.8669 0.264373 12.794C0.0914666 12.0574 0 11.2894 0 10.5C0 4.97715 4.47715 0.5 10 0.5C15.5228 0.5 20 4.97715 20 10.5C20 11.2271 19.9474 11.8919 19.8 12.575L19.7662 12.6939C19.7007 13.0054 19.5949 13.5087 19.4509 14.0177L19.4502 14.0202C19.4142 14.1474 19.3757 14.275 19.335 14.4C19.1011 15.1172 18.7896 15.75 18.4068 15.75C18.1345 15.75 17.9998 15.473 17.8599 15.1852C17.7086 14.8739 17.5511 14.55 17.2068 14.55C16.5441 14.55 16.0068 15.0872 16.0068 15.75L16.0068 16.3974C16.0068 16.8397 15.8052 17.2596 15.4338 17.5C14.6045 18.0368 13.6068 17.3688 13.6068 16.381L13.6068 15.75C13.6068 15.0872 13.0695 14.55 12.4068 14.55C11.7441 14.55 11.2068 15.0872 11.2068 15.75C11.2068 16.2607 11.2174 16.7752 11.2281 17.291L11.2281 17.291L11.2281 17.2915C11.2415 17.9374 11.2549 18.5853 11.2474 19.2297C11.2394 19.9253 10.7025 20.5 10.0068 20.5C9.31113 20.5 8.77418 19.9253 8.76615 19.2297C8.75871 18.5851 8.77212 17.9371 8.78548 17.291C8.79615 16.7753 8.8068 17.2607 8.8068 16.75C8.8068 16.0872 8.26954 15.55 7.6068 15.55C6.94406 15.55 6.4068 16.0872 6.4068 16.75V17.7817C6.4068 18.7695 5.40908 19.4375 4.57981 18.9007C4.20845 18.6603 4.0068 18.2404 4.0068 17.7981V15.75C4.0068 15.0872 3.46954 14.55 2.8068 14.55C2.49101 14.55 2.38536 14.5724 2.27473 14.8577C2.15318 15.1711 2.02563 15.5 1.6068 15.5Z" fill="black"/>
+        </svg>
+      </a>
+    </div>
+  );
+};
+
+export default ClodMessagingInbox;
