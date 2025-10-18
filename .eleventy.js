@@ -13,11 +13,11 @@ module.exports = function (eleventyConfig) {
       console.log(`Loaded ${snippetsData.length} snippets from snippets.json`);
       
       return snippetsData.map(snippet => {
-        snippet.url = `/snippets/${snippet.category}/${snippet.slug}/`;
+        snippet.url = `/LLM-Snippets/snippets/${snippet.category}/${snippet.slug}/`;
         
         // Handle preview image path
         if (snippet.previewImage && !snippet.previewImage.startsWith('http')) {
-          snippet.preview = `/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
+          snippet.preview = `/LLM-Snippets/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
         } else {
           snippet.preview = snippet.previewImage;
         }
@@ -71,6 +71,7 @@ module.exports = function (eleventyConfig) {
     },
     templateFormats: ["html", "njk", "md"],
     htmlTemplateEngine: "njk",
-    markdownTemplateEngine: "njk"
+    markdownTemplateEngine: "njk",
+    pathPrefix: "/LLM-Snippets/"
   };
 };
