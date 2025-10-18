@@ -7,7 +7,6 @@ title: "Snippet Collection"
         <h1 class="text-4xl font-bold tracking-tighter text-white sm:text-5xl">Snippet Collection</h1>
         <p class="mt-4 text-gray-400">A curated library of reusable components and prompts.</p>
     </div>
-
     <!-- Category Filters -->
     <div id="category-filters" class="my-12 flex flex-wrap justify-center gap-3">
         <button class="category-filter active rounded-full bg-cyan-400/80 px-4 py-2 text-sm font-semibold text-black transition hover:bg-cyan-300" data-category="all">All</button>
@@ -15,19 +14,17 @@ title: "Snippet Collection"
             <button class="category-filter rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-gray-300 transition hover:bg-white/20" data-category="{{ category }}">{{ category | capitalize }}</button>
         {% endfor %}
     </div>
-
     <!-- Search Bar -->
     <div class="relative mx-auto mb-12 max-w-2xl">
         <input type="search" id="search-input" placeholder="Search snippets..." class="w-full rounded-full border border-white/10 bg-[#151821] py-3 px-6 text-white placeholder-gray-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20">
         <svg class="absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
     </div>
-
     <!-- Snippet Grid -->
     <div id="snippet-grid" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {% for snippet in collections.snippets %}
-            {# Add data-category attribute for filtering #}
             <div class="card-wrapper" data-category="{{ snippet.category }}">
-                {% include "card.njk", card: snippet %}
+                {% set card = snippet %}
+                {% include "card.njk" %}
             </div>
         {% endfor %}
     </div>

@@ -5,9 +5,10 @@ pagination:
     size: 1
     alias: snippet
 permalink: "/snippets/{{ snippet.category }}/{{ snippet.slug }}/index.html"
+eleventyComputed:
+    title: "{{ snippet.title }}"
 ---
 
-{%- block title %}{{ snippet.title }}{% endblock -%}
 <div class="mx-auto w-full max-w-6xl rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1D29] via-[#151821] to-[#0F1117] p-6 sm:p-10 card-grainy relative isolate shadow-glow">
     <div class="pointer-events-none absolute top-0 left-0 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl"></div>
 
