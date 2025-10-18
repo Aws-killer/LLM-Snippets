@@ -1,0 +1,57 @@
+const fs = require("fs");
+const path = require("path");
+
+module.exports = function (eleventyConfig) {
+  // Pass through static assets
+  eleventyConfig.addPassthroughCopy("./src/assets/js/");
+  eleventyConfig.addPassthroughCopy({ "src/snippets": "snippets" });
+
+  // Read snippet data from our manifest file
+  eleventyConfig.addGlobalData("snippets", () => {
+    const data = fs.readFileSync("./src/storage/snippets.json", "utf8");
+    return JSON.parse(data);
+  });
+
+  // Create a collection from the global data, adding dynamic URLs
+  eleventyConfig.addCollection("snippets", function (collectionApi) {
+    const snippets = collectionApi.getFilteredByTag("snippets")[0];
+    return snippets.map(snippet => {
+      snippet.url = `/snippets/${snippet.category}/${snippet.slug}/`;
+      // Check if preview is a full URL, otherwise construct the path
+      if (snippet.previewImage && !snippet.previewImage.startsWith('http')) {
+        snippet.preview = `/snippets/${snippet.category}/${snippet.slug}/${snippet.previewImage}`;
+      } else {
+        snippet.preview = snippet.previewImage;
+      }
+      return snippet;
+    });
+  });
+
+  // Filter to read snippet code file content
+  eleventyConfig.addFilter("readFile", function(snippet) {
+    const fullPath = path.join("src/snippets", snippet.category, snippet.slug, snippet.codeFile);
+    try {
+      return fs.readFileSync(fullPath, "utf8");
+    } catch (e) {
+      console.error(`Error reading file: ${fullPath}`, e);
+      return "Error: File not found.";
+    }
+  });
+
+  // Filter to get a unique list of categories for the homepage
+  eleventyConfig.addFilter("uniqueCategories", function(snippets) {
+      const categories = snippets.map(s => s.category);
+      return [...new Set(categories)];
+  });
+
+  return {
+    dir: {
+      input: "src",
+      output: "_site",
+      includes: "_includes",
+      data: "_data"
+    },
+    templateFormats: ["html", "njk", "md"],
+    htmlTemplateEngine: "njk",
+  };
+};

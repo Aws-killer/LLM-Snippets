@@ -1,0 +1,14 @@
+<a href="{{ card.url }}" class="card block rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1D29]/80 to-[#0F1117]/80 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/50" data-title="{{ card.title }}" data-description="{{ card.description }}" data-tags="{{ card.tags | join(',') }}">
+    <div class="aspect-[16/9] overflow-hidden rounded-xl border border-white/10">
+        <img src="{{ card.preview }}" alt="{{ card.title }} Preview" class="h-full w-full object-cover object-top">
+    </div>
+    <div class="mt-4">
+        <h3 class="text-lg font-bold text-gray-100">{{ card.title }}</h3>
+        <p class="mt-1 text-sm text-gray-400">{{ card.description }}</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            {% for tag in card.tags %}
+                <span class="rounded bg-cyan-500/10 px-2 py-0.5 text-xs font-medium text-cyan-400">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+</a>

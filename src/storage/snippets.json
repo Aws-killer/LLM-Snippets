@@ -1,0 +1,11 @@
+[
+  {
+    "slug": "comparative-analysis-card",
+    "category": "tailwind",
+    "title": "Comparative Analysis Card",
+    "description": "A dark, glassmorphic card with glow and grainy texture effects.",
+    "tags": ["tailwind", "card", "dark-mode", "ui"],
+    "previewImage": "https://i.postimg.cc/qqChhM8j/Screenshot-2025-10-18-125310.png",
+    "codeFile": "snippet.html"
+  }
+]

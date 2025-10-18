@@ -1,0 +1,23 @@
+{
+  "name": "your-repo-name",
+  "version": "1.0.0",
+  "description": "My personal LLM and code snippet collection.",
+  "scripts": {
+    "start": "concurrently \"npm run watch:css\" \"npm run watch:eleventy\"",
+    "build": "npm run build:css && npm run build:eleventy",
+    "watch:css": "npx tailwindcss -i ./src/assets/css/style.css -o ./_site/assets/css/style.css --watch",
+    "watch:eleventy": "npx @11ty/eleventy --serve",
+    "build:css": "npx tailwindcss -i ./src/assets/css/style.css -o ./_site/assets/css/style.css --minify",
+    "build:eleventy": "npx @11ty/eleventy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "tailwindcss": "^3.4.0"
+  }
+}
