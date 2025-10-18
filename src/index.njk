@@ -23,8 +23,7 @@ title: "Snippet Collection"
     <div id="snippet-grid" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {% for snippet in collections.snippets %}
             <div class="card-wrapper" data-category="{{ snippet.category }}">
-                {% set card = snippet %}
-                {% include "card.njk" %}
+                {% include "card.njk" card=snippet %}
             </div>
         {% endfor %}
     </div>
